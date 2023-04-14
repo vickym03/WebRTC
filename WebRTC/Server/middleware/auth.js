@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 module.exports = async (request, response, next) => {
   try {
     const token = await request.headers.authorization.split(" ")[1];
+    // const token = req.body.token || req.query.token || req.headers['x-access-token']
 
     //check if the token matches the supposed origin
     const decodedToken = await jwt.verify(
@@ -24,7 +25,7 @@ module.exports = async (request, response, next) => {
 
   } catch (error) {
     response.status(401).json({
-      error: new Error("Invalid request!"),
+      error: "401 Unauthorized response !",
     });
   }
 }

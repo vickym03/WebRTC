@@ -1,26 +1,38 @@
 const express = require("express");
+const cors = require('cors');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authentication = require("./middleware/auth")
-
+const {userModel} = require("./model/index")
+const dbConnect = require("./config/dbConnect")
 // const userRouter = require("./routes/index")
+const morgan = require("morgan");
 
 
-
-const User = require("./model/userModel");
-const dbConnect = require('./config/dbConnect')
-
+//use express
 const app = express();
-
 app.use(express.json());
 
+//cors
+app.use(cors());
+
+//Data_base
 dbConnect()
 
 
 
-// APIs 
+// /* APIs  */
 
-// app.use("/WebRTC/user",userRouter)
+// app.use("/",userRouter)
+
+
+app.set('trust proxy', true)
+app.use(morgan('dev', {
+  skip: function (req, res) { return res.statusCode < 400 }
+}))
+
+
+// app.use(morgan('logger', { stream: accessLogStream }));
 
 
 app.post("/register", (request, response) => {
@@ -28,29 +40,29 @@ app.post("/register", (request, response) => {
     //The code above is telling bcrypt to hash the password received from request body 10 times or 10 salt rounds.
     bcrypt.hash(request.body.password, 10)
         .then((hashedPassword) => {
-            const user = new User({
+            const user = new userModel({
                 email: request.body.email,
                 password: hashedPassword,
             });
-            User.findOne({ email: request.body.email })
+
             user.save()
                 .then((result) => {
                     console.log("result", result)
                     response.status(201).send({
-                        message: "User Created Successfully",
+                        message: "user Created Successfully",
                         result: result,
                     })
                 })
 
                 .catch((data) => {
-                    response.status(500).send({
-                        message: "user present",
+                    response.status(200).send({
+                        message: "user already exists",
                         data: data.keyValue.email,
                     })
                 })
         })
         .catch((error) => {
-            response.status(500).send({
+            response.status(404).send({
                 message: "Password was not hashed successfully",
                 error: error
             })
@@ -62,7 +74,7 @@ app.post("/login", (request, response) => {
     console.log("request.body", request.body)
 
     // check if email exists
-    User.findOne({ email: request.body.email })
+    userModel.findOne({ email: request.body.email })
 
         // if email exists
         .then((user) => {
@@ -75,7 +87,7 @@ app.post("/login", (request, response) => {
 
                     // check if password matches
                     if (!passwordCheck) {
-                        return response.status(400).send({
+                        return response.status(404).send({
                             message: "Passwords does not match",
                             error: error
                         });
@@ -90,19 +102,23 @@ app.post("/login", (request, response) => {
                         "RANDOM-TOKEN",
                         { expiresIn: "15m" }
                     );
-                    console.log("token:", token)
+
+
+
+                    console.log("Access token:", token)
                     //   return success response
                     response.status(200).send({
                         data: {
                             message: "Login Successful",
                             email: user.email,
-                            token: token
+                            access_token: token,
+
                         }
                     });
                 })
                 // catch error if password does not match
                 .catch((error) => {
-                    response.status(400).send({
+                    response.status(404).send({
                         message: "Passwords does not match",
                         error: error
                     });
@@ -117,10 +133,31 @@ app.post("/login", (request, response) => {
         });
 });
 
-// authentication
+app.get('/users', (request, response) => {
+
+    userModel.find({}, { _id: 1, email: 1 }).then((data) => {
+
+        console.log("newArray", data)
+
+        response.status(200).send({
+            message: "user fetched Successfully",
+            data: data
+        })
+    }).catch((error) => {
+        response.status(404).send({
+            message: "Failed to fetch user",
+            error: error
+        });
+    })
+
+})
+
 
 
 
 
 
 module.exports = app;
+
+
+

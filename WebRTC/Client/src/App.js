@@ -1,23 +1,14 @@
 import './App.css';
-import VedioConfig from "./login/views/VedioConfig"
+import Router from './router/Router';
 
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
 
-} from "react-router-dom";
 
 function App() {
   return (
-    <Router>
-      <Routes>
+    <>
+      <Router />
+    </>
 
-        <Route path='/' default element={<VedioConfig/>} />
-
-
-      </Routes>
-    </Router>
   );
 }
 

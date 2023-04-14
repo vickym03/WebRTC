@@ -6,7 +6,7 @@ const initialState = {
   error: undefined,
 };
 
-export default function users(state = initialState, action) {
+export default function usersReducer(state = initialState, action) {
 
   switch ((action, action.type)) {
     
@@ -20,7 +20,7 @@ export default function users(state = initialState, action) {
     //   console.log("state reducer", action.payload)
       return {
         ...state,
-        users: action.payload.data,
+        users: action.payload,
         loading: false,
       };
 
