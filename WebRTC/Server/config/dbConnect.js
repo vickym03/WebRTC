@@ -20,8 +20,6 @@ async function dbConnect() {
       connectionParams
     )
     .then(() => {
-      // const db = client.db("auth");
-      // db.createCollection("users");
       console.log(`Successfully connected to ${database} ! - ${env} NODE_ENV`);
 
     })

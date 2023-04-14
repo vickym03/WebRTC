@@ -3,11 +3,9 @@ import { GET_USERS_REQUEST,getUsersSuccess, getUsersFailed } from "./actions";
 import { Userapi } from "../core/Userapi";
 
 function* fetchUsers(action) {
-    console.log("saga",action)
     const { payload, error } = yield call(Userapi.loginApi, action)
     if (payload) {
         console.log("saga pay", payload)
-      console.log("payload",payload)
         yield put(getUsersSuccess(payload))
     } else {
         yield put(getUsersFailed(error))
